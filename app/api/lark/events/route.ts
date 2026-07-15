@@ -1,21 +1,32 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ message: "Webhook OK" });
 }
 
 export async function POST(req: Request) {
-  const body = await req.json();
+  try {
+    const body = await req.json();
 
-  console.log("Lark Body:", body);
+    console.log("Lark Event:", JSON.stringify(body, null, 2));
 
-  if (body.type === "url_verification") {
+    // URL Verification
+    if (body.type === "url_verification") {
+      return NextResponse.json({
+        challenge: body.challenge,
+      });
+    }
+
+    // Sau khi verify thành công, mọi event sẽ vào đây
     return NextResponse.json({
-      challenge: body.challenge,
+      code: 0,
+      msg: "success",
     });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json(
+      { code: 500, msg: "error" },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json({
-    code: 0,
-  });
 }
